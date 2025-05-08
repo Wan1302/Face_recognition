@@ -4,7 +4,7 @@ This project implements a two-stage pipeline for face recognition, combining rea
 2. **Feature Extraction & Matching** with ArcFace embeddings, enabling robust comparison of faces using cosine similarity.<br>
 
 # Pipeline
-![Pipeline](pipeline_face_recognition.drawio.png)
+![Pipeline](pipeline_face_recognition.png)
 
 # Models
 - **Face Detection**: [Download model YOLOv11s-face](https://github.com/akanametov/yolo-face)
