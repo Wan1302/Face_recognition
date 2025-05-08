@@ -1,7 +1,10 @@
 # Face recognition
 This project implements a two-stage pipeline for face recognition, combining real-time face detection and indentification:<br>
-1. **Face Detection** using a custom-trained YOLO model to accurately loacte faces in images or webcam streams.<br>
+1. **Face Detection** using a custom-trained YOLO model to accurately locate faces in images or webcam streams.<br>
 2. **Feature Extraction & Matching** with ArcFace embeddings, enabling robust comparison of faces using cosine similarity.<br>
+
+# Pipeline
+![Pipeline](pipeline_face_recognition.drawio.png)
 
 # Models
 - **Face Detection**: [Download model YOLOv11s-face](https://github.com/akanametov/yolo-face)
@@ -10,7 +13,7 @@ This project implements a two-stage pipeline for face recognition, combining rea
 # Usage
 **Clone my repository**:
 ```
-git clone 
+git clone https://github.com/Wan1302/Face_recognition.git
 ```
 
 **Collect new faces for dataset**: enter your name and press `Enter` to take 10 pictures.
