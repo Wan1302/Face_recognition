@@ -32,3 +32,4 @@ py realtime_face_recognition.py
 ```
 
 # Inferences
+![Inferences](Face_Recognition.png)
