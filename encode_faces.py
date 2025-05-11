@@ -48,7 +48,6 @@ for person_name in os.listdir(db_path):
 
             face_crop = img[y1:y2, x1:x2]
             face_crop_rgb = cv2.cvtColor(face_crop, cv2.COLOR_BGR2RGB)
-            face_crop_rgb = face_crop_rgb.astype(np.uint8)
             
             emb = app.get(face_crop_rgb)
             if emb:

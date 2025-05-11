@@ -1,6 +1,7 @@
 import cv2
 import pickle
 import numpy as np
+import time
 from ultralytics import YOLO
 from insightface.app import FaceAnalysis
 from sklearn.metrics.pairwise import cosine_similarity
@@ -13,13 +14,16 @@ app.prepare(ctx_id=0)
 with open("data/features/face_embeddings.pkl", "rb") as f:
     stored_embeddings = pickle.load(f)
 
-avg_embeddings = {
-    person: np.mean(vectors, axis=0)
-    for person, vectors in stored_embeddings.items()
-}
+# Avg
+# avg_embeddings = {
+#     person: np.mean(vectors, axis=0)
+#     for person, vectors in stored_embeddings.items()
+# }
 
 cap = cv2.VideoCapture(0)
 print("[INFO] Press 'q' to exit...")
+
+prev_time = time.time()
 
 while True:
     ret, frame = cap.read()
@@ -45,10 +49,19 @@ while True:
         if faces:
             query_emb = faces[0].embedding.reshape(1, -1)
 
-            similarities = {
-                person: cosine_similarity(query_emb, np.array(emb).reshape(1, -1))[0][0]
-                for person, emb in avg_embeddings.items()
-            }
+            # similarities = {
+            #     person: cosine_similarity(query_emb, np.array(emb).reshape(1, -1))[0][0]
+            #     for person, emb in avg_embeddings.items()
+            # }
+
+            similarities = {}
+
+            for person, vectors in stored_embeddings.items():
+                vectors = np.array(vectors)  
+                sims = cosine_similarity(query_emb, vectors)[0] 
+                top_k = min(3, len(sims))
+                top_k_sims = np.sort(sims)[-top_k:] 
+                similarities[person] = np.mean(top_k_sims)
 
             best_match = max(similarities, key=similarities.get)
             if similarities[best_match] > 0.4: 
@@ -68,6 +81,13 @@ while True:
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
             cv2.putText(frame, label, (x1, y1 - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            
+    curr_time = time.time()
+    fps = 1 / (curr_time - prev_time)
+    prev_time = curr_time
+
+    cv2.putText(frame, f"FPS: {fps:.2f}", (10, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
 
     cv2.imshow("Face Recognition", frame)
 
