@@ -4,7 +4,7 @@ This project implements a two-stage pipeline for face recognition, combining rea
 2. **Feature Extraction & Matching** with ArcFace embeddings, enabling robust comparison of faces using cosine similarity.<br>
 
 # Pipeline
-![Pipeline](pipeline_face_recognition.png)
+![Pipeline](imgs/pipeline_face_recognition.png)
 
 # Models
 - **Face Detection**: [Download model YOLOv11s-face](https://github.com/akanametov/yolo-face)
@@ -32,4 +32,15 @@ py realtime_face_recognition.py
 ```
 
 # Inferences
-![Inferences](Face_Recognition.png)
+![Inferences](imgs/Face_Recognition.png)
+
+# Demo using Streamlit
+```
+streamlit run main.py
+```
+Press `Start` button to begin realtime face recognition.
+![Page_1](imgs/page_1.png)
+
+Press `Register New Face` to collect and encode new faces.
+![Page_1](imgs/page_2.png)
+
