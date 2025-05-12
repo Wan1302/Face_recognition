@@ -82,9 +82,8 @@ while True:
             cv2.putText(frame, label, (x1, y1 - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             
-    curr_time = time.time()
-    fps = 1 / (curr_time - prev_time)
-    prev_time = curr_time
+    fps = fps = 1 / (cv2.getTickCount() / cv2.getTickFrequency() - prev_time)
+    prev_time = cv2.getTickCount() / cv2.getTickFrequency()
 
     cv2.putText(frame, f"FPS: {fps:.2f}", (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)

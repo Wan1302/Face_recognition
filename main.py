@@ -8,6 +8,12 @@ from ultralytics import YOLO
 from insightface.app import FaceAnalysis
 from sklearn.metrics.pairwise import cosine_similarity
 
+st.set_page_config(page_title="Real-Time Face Recognition", layout="wide")
+
+st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🔍 Real-Time Face Recognition</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Powered by <b>YOLOv11s</b> & <b>ArcFace (InsightFace)</b></p>", unsafe_allow_html=True)
+st.divider()
+
 @st.cache_resource
 def load_models():
     yolo_model = YOLO("yolov11s-face.pt")
@@ -17,15 +23,9 @@ def load_models():
 
 def load_embeddings():
     with open("data/features/face_embeddings.pkl", "rb") as f:
-        stored_embeddings = pickle.load(f)
-    # avg_emb = {
-    #     person: np.mean(vectors, axis=0)
-    #     for person, vectors in stored.items()
-    # }
-    return stored_embeddings
+        return pickle.load(f)
 
 yolo_model, face_app = load_models()
-# avg_embeddings = load_embeddings()
 stored_embeddings = load_embeddings()
 
 class VideoProcessor(VideoTransformerBase):
@@ -52,16 +52,13 @@ class VideoProcessor(VideoTransformerBase):
             label = "Unknown"
             if faces:
                 query_emb = faces[0].embedding.reshape(1, -1)
-                # similarities = {
-                #     person: cosine_similarity(query_emb, np.array(emb).reshape(1, -1))[0][0]
-                #     for person, emb in avg_embeddings.items()
-                # }
+
                 similarities = {}
                 for person, vectors in stored_embeddings.items():
-                    vectors = np.array(vectors)  
-                    sims = cosine_similarity(query_emb, vectors)[0] 
+                    vectors = np.array(vectors)
+                    sims = cosine_similarity(query_emb, vectors)[0]
                     top_k = min(3, len(sims))
-                    top_k_sims = np.sort(sims)[-top_k:] 
+                    top_k_sims = np.sort(sims)[-top_k:]
                     similarities[person] = np.mean(top_k_sims)
 
                 best_match = max(similarities, key=similarities.get)
@@ -76,22 +73,45 @@ class VideoProcessor(VideoTransformerBase):
             color = (0, 255, 0) if label != "Unknown" else (0, 0, 255)
             cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
             cv2.putText(image, label, (x1, y1 - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
 
         if self.prev_time:
             fps = 1 / (cv2.getTickCount() / cv2.getTickFrequency() - self.prev_time)
             cv2.putText(image, f"FPS: {fps:.2f}", (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
         self.prev_time = cv2.getTickCount() / cv2.getTickFrequency()
         return image
 
-st.title("Real-Time Face Recognition")
-st.caption("Using YOLOv11 + InsightFace")
-if st.button("Register new face"):
-    st.switch_page("pages/register_face.py")
 
-webrtc_streamer(
-    key="face-detect",
-    video_transformer_factory=VideoProcessor,
-    media_stream_constraints={"video": True, "audio": False}
-)
+col1, col2 = st.columns([4, 1])
+
+with col1:
+    st.markdown("#### 🎥 Camera")
+    webrtc_streamer(
+        key="face-detect",
+        video_transformer_factory=VideoProcessor,
+        media_stream_constraints={"video": True, "audio": False},
+        video_html_attrs={
+            "autoPlay": True,
+            "muted": True,
+            "playsinline": True,
+            "width": "1200px",
+            "height": "700px",
+        }
+    )
+
+with col2:
+    st.markdown("### ⚙️ Options")
+    if st.button("➕ Register New Face"):
+        st.switch_page("pages/register_face.py")
+    
+    st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
+    st.markdown("### 📘 Instructions")
+    st.markdown("""
+        <ul style="font-size: 18px; line-height: 1.8;">
+            <li>Ensure your camera is <b>enabled</b>.</li>
+            <li>Stand in front of the <b>camera</b> clearly.</li>
+            <li>If you're registered, your <b>name will appear</b>.</li>
+        </ul>
+    """, unsafe_allow_html=True)
+
