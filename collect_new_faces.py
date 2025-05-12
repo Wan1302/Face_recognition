@@ -11,7 +11,7 @@ if not cap.isOpened():
     print("Can not open webcam.")
     exit()
 
-num_photos = 20
+num_photos = 10
 captured = 0
 image_paths = []
 
